@@ -110,3 +110,11 @@
 (defrule направленная-точка (and точка-оп имя-точки направление от (? точка-оп) имя-точки на (? расстояние)))
 
 (defrule точка (or направленная-точка))
+
+(defrule число (and (+ (digit-char-p character))
+                    #\. (* (digit-char-p character))
+                    (? (and (or "e" "E" "е" "Е") (? (or "-" "+")) (* (digit-char-p character)))))
+  (:lambda (list)
+    (if (string-equal (car (fourth list)) "е")
+        (setf (car (fourth list)) "E"))
+    (parse-number:parse-number (text list))))
