@@ -26,4 +26,5 @@
 (defsystem bibiona-parser-tests
     :depends-on (#:bibiona-parser
                  #:fiveam)
-  :components ((:file "tests")))
+    :components ((:file "test-spaces")
+                 (:file "test-simple-kw")))
