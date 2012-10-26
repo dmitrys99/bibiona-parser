@@ -27,4 +27,5 @@
     :depends-on (#:bibiona-parser
                  #:fiveam)
     :components ((:file "test-spaces")
-                 (:file "test-simple-kw")))
+                 (:file "test-simple-kw")
+                 (:file "test-op-dot")))

@@ -42,8 +42,12 @@
 (defrule амп-точки "'")
 
 #| ПРАВИЛО ДЛЯ ИМЕНОВАНИЯ  ТОЧЕК, .А0' |#
-(defrule имя-точки (and #\. (+ (or цифры-точки буквы-точки)) (? (+ амп-точки)))
-  (:destructure (dot txt amp) (concatenate 'string dot (text txt) (text amp))))
+(defrule имя-точки (and (? прб)
+                        #\.                        
+                        (+ (or цифры-точки буквы-точки))
+                        (* амп-точки)
+                        (? прб))
+  (:destructure (w1 dot txt amp w2) (declare (ignore w1 w2)) (concatenate 'string dot (text txt) (text amp))))
 
 (defrule от (and (? прб) (~ "от") (? прб)) (:constant :ОТ))
 (defrule до (and (? прб) (~ "до") (? прб)) (:constant :ДО))
@@ -71,13 +75,17 @@
                     (? (and #\. (* (digit-char-p character))))
                     (? (and (or "e" "E" "е" "Е")
                             (? (or "-" "+"))
-                            (* (digit-char-p character))))
+                            (+ (digit-char-p character))))
                     (? прб))
   
   (:lambda (list)
     (if (string-equal (car (fourth list)) "е")
         (setf (car (fourth list)) "E"))
-    (* 1.0 (parse-number:parse-number (text list)))))
+    (* 1.0 (parse-number:parse-number
+            (string-trim '(#\space
+                           #\tab
+                           #\linefeed
+                           #\newline) (text list))))))
 
 (defrule выражение (and терм (* (and (or "-" "+") выражение)))
   (:lambda (list)
@@ -107,12 +115,15 @@
                        (? прб)) (:constant :ТОЧКА))
 
 #| ОП: БАЗОВАЯ ТОЧКА |#
-(defrule базовая-точка (and (~ "Базовая") (+ прб) точка-кс (+ прб) имя-точки)
-  (:destructure (b w1 p w2 dn) (declare (ignore b p w1 w2)) (list :БАЗОВАЯ-ТОЧКА dn)))
+(defrule базовая-точка (and (~ "Базовая") (+ прб) точка-кс имя-точки)
+  (:destructure (b w1 p dn) (declare (ignore b p w1 )) (list :БАЗОВАЯ-ТОЧКА dn)))
 
 
 #| ОП: НАПРАВЛЕННАЯ ТОЧКА |#
-(defrule направленная-точка (and точка-кс имя-точки направление от (? точка-кс) имя-точки на (? расстояние) выражение))
+(defrule направленная-точка (and точка-кс имя-точки направление от (? точка-кс) имя-точки на (? расстояние) выражение)
+  (:destructure (d1 n1 dir from d2 n2 to dist expr)
+(declare (ignore d1 from d2 to dist)) 
+(list :ТОЧКА n1 dir n2 expr)))
 
 #| ОП: ТОЧКА |#
 (defrule точка (or направленная-точка базовая-точка))
