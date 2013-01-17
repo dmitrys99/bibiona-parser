@@ -1,14 +1,13 @@
 (in-package :bibiona-parser)
 
 #| ПРОБЕЛЬНЫЕ СИМВОЛЫ, В ТОМ ЧИСЛЕ ПЕРЕВОДЫ КАРЕТКИ |#
-(defrule прб-сим (+ (or #\space #\tab #\newline #\Linefeed))
+(defrule прб-сим (+ (or #\space #\tab #\newline))
   (:constant " "))
 
 
 #| ПРАВИЛО ДЛЯ ПЕРЕВОДОВ КАРЕТКИ  |#
 #| ДЛЯ ОДНОСТРОЧНЫХ КОММЕНТАРИЕВ |#
 (defrule конец-строки (or #\Newline
-                          #\Linefeed
                           (and #\Newline #\Linefeed)))
 
 #| ОДНОСТРОЧНЫЕ КОММЕНТАРИИ |#
@@ -25,131 +24,153 @@
                     много-комментарий)) (:constant " "))
 
 #| ОПРЕДЕЛЕНИЕ БУКВ, ЦИФР И АМПЕРСАНДА |#
-(defrule буквы-точки (or  "А" "Б" "В" "Г" "Д" "Е" "Ё" "Ж" "З" "И" "Й"
-                          "К" "Л" "М" "Н" "О" "П" "Р" "С" "Т" "У" "Ф"
-                          "Х" "Ц" "Ч" "Ш" "Щ" "Ъ" "Ы" "Ь" "Э" "Ю" "Я"
+(defrule буквы-точки (or "А" "Б" "В" "Г" "Д" "Е" "Ё" "Ж" "З" "И" "Й"
+                         "К" "Л" "М" "Н" "О" "П" "Р" "С" "Т" "У" "Ф"
+                         "Х" "Ц" "Ч" "Ш" "Щ" "Ъ" "Ы" "Ь" "Э" "Ю" "Я"
 
-                          "а" "б" "в" "г" "д" "е" "ё" "ж" "з" "и" "й"
-                          "к" "л" "м" "н" "о" "п" "р" "с" "т" "у" "ф"
-                          "х" "ц" "ч" "ш" "щ" "ъ" "ы" "ь" "э" "ю" "я"
-                          
-                          "a" "b" "c" "d" "e" "f" "g" "h" "i" "j" "k" "l" "m"
-                          "n" "o" "p" "q" "r" "s" "t" "u" "v" "w" "x" "y" "z"
-                          
-                          "A" "B" "C" "D" "E" "F" "G" "H" "I" "J" "K" "L" "M"
-                          "N" "O" "P" "Q" "R" "S" "T" "U" "V" "W" "X" "Y" "Z"))
+                         "а" "б" "в" "г" "д" "е" "ё" "ж" "з" "и" "й"
+                         "к" "л" "м" "н" "о" "п" "р" "с" "т" "у" "ф"
+                         "х" "ц" "ч" "ш" "щ" "ъ" "ы" "ь" "э" "ю" "я"
+
+                         "a" "b" "c" "d" "e" "f" "g" "h" "i" "j" "k" "l" "m"
+                         "n" "o" "p" "q" "r" "s" "t" "u" "v" "w" "x" "y" "z"
+
+                         "A" "B" "C" "D" "E" "F" "G" "H" "I" "J" "K" "L" "M"
+                         "N" "O" "P" "Q" "R" "S" "T" "U" "V" "W" "X" "Y" "Z"))
 (defrule цифры-точки (or "0" "1" "2" "3" "4" "5" "6" "7" "8" "9"))
 (defrule амп-точки "'")
 
 #| ПРАВИЛО ДЛЯ ИМЕНОВАНИЯ  ТОЧЕК, .А0' |#
-(defrule имя-точки (and (? прб)
-                        #\.                        
+(defrule имя-точки (and #\.
                         (+ (or цифры-точки буквы-точки))
-                        (* амп-точки)
-                        (? прб))
-  (:destructure (w1 dot txt amp w2) (declare (ignore w1 w2)) (concatenate 'string dot (text txt) (text amp))))
+                        (* амп-точки))
+  (:destructure (dot txt amp) (concatenate 'string dot (text txt) (text amp))))
 
-(defrule от (and (? прб) (~ "от") (? прб)) (:constant :ОТ))
-(defrule до (and (? прб) (~ "до") (? прб)) (:constant :ДО))
-(defrule на (and (? прб) (~ "на") (? прб)) (:constant :НА))
+(defrule от (~ "от") (:constant :ОТ))
+(defrule до (~ "до") (:constant :ДО))
+(defrule на (~ "на") (:constant :НА))
 
-(defrule мм (and (? прб) (~ "мм") (? прб)) (:constant :ММ))
-(defrule см (and (? прб) (~ "см") (? прб)) (:constant :СМ))
-(defrule м  (and (? прб) (~ "м") (? прб)) (:constant :М))
+(defrule мм (~ "мм") (:constant :ММ))
+(defrule см (~ "см") (:constant :СМ))
+(defrule м  (~ "м")  (:constant :М ))
 (defrule ед-изм (or мм см м))
 
-(defrule расстояние (and (? прб) (~ "расстояние") (? прб)) (:constant :РАССТОЯНИЕ))
+(defrule расстояние (~ "расстояние") (:constant :РАССТОЯНИЕ))
 
 
 #| НАПРАВЛЕНИЕ |#
-(defrule вправо (and (? прб) (~ "вправо") (? прб)) (:constant :ВПРАВО))
-(defrule влево  (and (? прб) (~ "влево")  (? прб)) (:constant :ВЛЕВО))
-(defrule вверх  (and (? прб) (~ "вверх")  (? прб)) (:constant :ВВЕРХ))
-(defrule вниз   (and (? прб) (~ "вниз")   (? прб)) (:constant :ВНИЗ))
+(defrule вправо (~ "вправо") (:constant :ВПРАВО))
+(defrule влево  (~ "влево")  (:constant :ВЛЕВО))
+(defrule вверх  (~ "вверх")  (:constant :ВВЕРХ))
+(defrule вниз   (~ "вниз")   (:constant :ВНИЗ))
 
 (defrule направление (or вверх вниз вправо влево))
 
 #| АРИФМЕТИКА |#
-(defrule число (and (? прб)
-                    (+ (digit-char-p character))
+(defrule число (and (+ (digit-char-p character))
                     (? (and #\. (* (digit-char-p character))))
                     (? (and (or "e" "E" "е" "Е")
                             (? (or "-" "+"))
-                            (+ (digit-char-p character))))
-                    (? прб))
-  
+                            (+ (digit-char-p character)))))
+
   (:lambda (list)
-    (if (string-equal (car (fourth list)) "е")
-        (setf (car (fourth list)) "E"))
+    (if (string-equal (car (third list)) "е")
+        (setf (car (third list)) "E"))
     (* 1.0 (parse-number:parse-number
             (string-trim '(#\space
                            #\tab
                            #\linefeed
                            #\newline) (text list))))))
 
-(defrule выражение (and терм (* (and (or "-" "+") выражение)))
+(defrule выражение (and терм (* (and (? прб) (or "-" "+") (? прб) выражение)))
   (:lambda (list)
     (if (second list)
-        (list (caaadr list) (car list) (car (cdaadr list)))
+        (let ((arg1 (car list))
+              (arg2 (caadr list)))
+          (list (second arg2)
+                arg1
+                (fourth arg2)))
         (car list))))
 
-(defrule терм (and фактор (* (and (or "/" "*") терм)))
+(defrule терм (and фактор (* (and (? прб) (or "/" "*") (? прб) терм)))
   (:lambda (list)
+;    (break "~A" list)
     (if (second list)
-        (list (caaadr list) (car list) (car (cdaadr list)))
+        (let ((arg1 (car list))
+              (arg2 (caadr list)))
+          (list (second arg2)
+                arg1
+                (fourth arg2)))
         (car list))))
-  
-(defrule лев-круг-скб (and (? прб) "(" (? прб)) (:constant "("))
-(defrule прв-круг-скб (and (? прб) ")" (? прб)) (:constant ")"))
 
-(defrule фактор (or (and число (? ед-изм)) (and лев-круг-скб выражение прв-круг-скб))
+(defrule лев-круг-скб "(" (:constant "("))
+(defrule прв-круг-скб ")" (:constant ")"))
+
+(defrule фактор (or (and число (? прб) (? ед-изм)) (and лев-круг-скб (? прб) выражение (? прб) прв-круг-скб))
   (:lambda (list)
-    (cond ((and (= 2 (length list)) (null (second list))) (first list))
-          ((= 3 (length list)) (second list))
+    (cond (;; <число>
+           (and
+            (= 3 (length list))
+            (null (third list)))           (first list))
+          ;; <число> <ед>
+          ((and (= 3 (length list))
+                (not (null (third list)))) (list (first list) (third list)))
+          ;; ( <выражение> )
+          ((= 5 (length list))             (third list))
+
+          ;; другое
           (t list))))
 #| КОНЕЦ АРИФМЕТИКИ |#
 
 #| КС: ТОЧКА |#
-(defrule точка-кс (and (? прб)
-                       (or (~ "точка") (~ "точки"))
-                       (? прб)) (:constant :ТОЧКА))
+(defrule точка-кс (or (~ "точка") (~ "точки")) (:constant :ТОЧКА))
 
 #| ОП: БАЗОВАЯ ТОЧКА |#
-(defrule базовая-точка (and (~ "Базовая") (+ прб) точка-кс имя-точки)
-  (:destructure (b w1 p dn) (declare (ignore b p w1 )) (list :БАЗОВАЯ-ТОЧКА dn)))
+(defrule базовая-точка (and (~ "Базовая") (+ прб) точка-кс (+ прб) имя-точки)
+  (:destructure (b w1 p w2 dn) (declare (ignore b p w1 w2)) (list :ТОЧКА dn :БАЗОВАЯ)))
 
 
 #| ОП: НАПРАВЛЕННАЯ ТОЧКА |#
-(defrule направленная-точка (and точка-кс имя-точки направление от (? точка-кс) имя-точки на (? расстояние) выражение)
-  (:destructure (d1 n1 dir from d2 n2 to dist expr)
-(declare (ignore d1 from d2 to dist)) 
-(list :ТОЧКА n1 dir n2 expr)))
+(defrule направленная-точка (and точка-кс       (+ прб)
+                                 имя-точки      (+ прб)
+                                 направление    (+ прб)
+                                 от             (+ прб)
+                                 (? (and точка-кс (+ прб)))
+                                 имя-точки      (+ прб)
+                                 на             (+ прб)
+                                 (? (and расстояние (+ прб)))
+                                 выражение)
+  (:destructure (d1 w1 n1 w2 dir w3 from w4 d2 n2 w5 to w7 dist expr)
+(declare (ignore d1 from d2 to dist w1 w2 w3 w4 w5 w7 ))
+(list :ТОЧКА n1 n2 dir :РАССТОЯНИЕ expr)))
 
 #| ОП: ТОЧКА |#
 (defrule точка (or направленная-точка базовая-точка))
 
 #| КС: ОТРЕЗОК |#
-(defrule отрезок-кс (and (? прб) (or  (~ "отрезок")
-                                      (~ "отрезка")
-                                      (~ "отрезком")) (? прб))
+(defrule отрезок-кс  (or  (~ "отрезок")
+                          (~ "отрезка")
+                          (~ "отрезком"))
   (:constant :ОТРЕЗОК))
 
 #| ОП: ОТРЕЗОК ОТ ... ДО ... |#
-(defrule отрезок-от-до (and отрезок-кс
-                            от
-                            (? точка-кс) имя-точки
-                            до
-                            (? точка-кс) имя-точки)
-  (:destructure (lop fr dt1 dn1 to dt2 dn2)
-    (declare (ignore lop fr dt1 to dt2)) 
+(defrule отрезок-от-до (and отрезок-кс   (+ прб)
+                            от           (+ прб)
+                            (? (and точка-кс (+ прб)))
+                            имя-точки    (+ прб)
+                            до           (+ прб)
+                            (? (and точка-кс (+ прб)))
+                            имя-точки)
+  (:destructure (lop w1 fr w2 dt1 dn1 w3 to w4 dt2 dn2)
+    (declare (ignore lop fr dt1 to dt2 w1 w2 w3 w4))
     (list :ОТРЕЗОК dn1 dn2)))
 
 #| ОП: НАПРАВЛЕННЫЙ ОТРЕЗОК |#
 (defrule направленный-отрезок (and отрезок-кс
                                    направление
-                                   от (? точка-оп) имя-точки
+                                   от (? точка-кс) имя-точки
                                    на (? расстояние) выражение
-                                   (? (and точка-оп имя-точки)))
+                                   (? (and точка-кс имя-точки)))
   (:destructure (line dir from dt1 dn1 dot)
     (declare (ignore line dir from dt1))
     (list :ОТРЕЗОК dn1 (if dot dot :НОВАЯ))))
@@ -165,5 +186,18 @@
 
 (defrule последняя-тз (and (? прб) ";" (? прб)))
 
+#| ОП: ОПЕРАТОРЫ |#
 (defrule операторы (and оператор (* остаток-операторы) (? последняя-тз))
   (:destructure (op lst ws) (declare (ignore ws)) (cons op lst)))
+
+#| КС: ИЗДЕЛИЕ |#
+(defrule изделие-кс (and (? прб) (or  (~ "изделие")
+                                      (~ "изделия")
+                                      (~ "изделию")) (? прб)))
+
+#| КС: КОНЕЦ |#
+(defrule конец-кс (and (? прб) (or  (~ "конец")
+                                    (~ "конца")
+                                    (~ "концу")) (? прб)))
+
+(defrule изделие (and изделие-кс операторы конец-кс изделие-кс (? последняя-тз)))

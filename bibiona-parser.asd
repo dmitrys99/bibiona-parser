@@ -22,10 +22,13 @@
   :components ((:file "package")
                (:file "bibiona-parser")))
 
-
 (defsystem bibiona-parser-tests
     :depends-on (#:bibiona-parser
                  #:fiveam)
-    :components ((:file "test-spaces")
-                 (:file "test-simple-kw")
-                 (:file "test-op-dot")))
+    :components ((:module "tests"
+                          :serial t
+                          :components ((:file "package"       )
+                                       (:file "test-spaces"   )
+                                       (:file "test-arith"    )
+                                       (:file "test-simple-kw")
+                                       (:file "test-op-dot")))))
