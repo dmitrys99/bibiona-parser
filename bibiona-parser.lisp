@@ -106,18 +106,20 @@
 (defrule лев-круг-скб "(" (:constant "("))
 (defrule прв-круг-скб ")" (:constant ")"))
 
-(defrule фактор (or (and число (+ прб) (? ед-изм)) 
+(defrule фактор (or (and число (? (and (+ прб) ед-изм))) 
                     (and лев-круг-скб (? прб) 
                          выражение 
                          (? прб) прв-круг-скб))
   (:lambda (list)
+    ;(break "~A" list)
     (cond (;; <число>
            (and
-            (= 3 (length list))
-            (null (third list)))           (first list))
+            (= 2 (length list))
+            (null (second list)))          (first list))
           ;; <число> <ед>
-          ((and (= 3 (length list))
-                (not (null (third list)))) (list (first list) (third list)))
+          ((and (= 2 (length list))
+                (not (null (second list)))) (list (first list) 
+                                                  (cadr (second list))))
           ;; ( <выражение> )
           ((= 5 (length list))             (third list))
 

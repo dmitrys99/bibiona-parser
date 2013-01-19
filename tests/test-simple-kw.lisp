@@ -1,6 +1,3 @@
-(defpackage :bibiona-parser-tests
-  (:use :cl :FiveAM :bibiona-parser))
-
 (in-package :bibiona-parser-tests)
 
 (in-suite* :bibiona-parser)

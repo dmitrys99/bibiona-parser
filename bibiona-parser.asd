@@ -31,4 +31,5 @@
                                        (:file "test-spaces"   )
                                        (:file "test-arith"    )
                                        (:file "test-simple-kw")
-                                       (:file "test-op-dot")))))
+                                       (:file "test-op-dot"   )
+                                       (:file "test-op-line"  )))))
