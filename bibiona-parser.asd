@@ -6,7 +6,7 @@
 пригодную для выполнения виртуальной машиной, отображающей конструкцию
 на экране, принтере и web-странице."
   :maintainer "Дмитрий Соломенников <dmitrys99@mail.ru>"
-  :depends-on (#:esrap #:parse-number)
+  :depends-on (#:esrap #:parse-number #:cli-parser :babel)
   :version #.(with-open-file
                  (f (merge-pathnames
                      "version.lisp-expr"
@@ -20,7 +20,11 @@
                                   :bibiona-parser))
   :serial t
   :components ((:file "package")
-               (:file "bibiona-parser")))
+               (:file "bibiona-parser")
+               (:file "bibiona-generator")
+               (:file "utils")
+               (:file "errors")
+               (:file "infrastructure")))
 
 (defsystem bibiona-parser-tests
     :depends-on (#:bibiona-parser

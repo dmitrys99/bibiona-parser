@@ -1,0 +1,1 @@
+sbcl --sysinit C:\Work\Emacs\home\.sbclrc --load build.lisp
