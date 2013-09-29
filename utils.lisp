@@ -1,9 +1,9 @@
 (in-package :bibiona-parser)
 
 (defun cmd-line ()
-  ;;#+BIBIONA-DEBUG '()
-  ;;#+BIBIONA-DEBUG '("-f" "input.file" "-e" "CMD" "-" "001")
-  #+BIBIONA-DEBUG '( "-e" "CMD-003")
+  ;; #+BIBIONA-DEBUG '()
+  #+BIBIONA-DEBUG '("-f" "C:/Work/Emacs/home/юбка.fabric")
+  ;; #+BIBIONA-DEBUG '( "-e" "CMD-003")
   ;; #+CCL (rest ccl:*command-line-argument-list*)
   #-BIBIONA-DEBUG (rest sb-ext:*posix-argv*)
   )

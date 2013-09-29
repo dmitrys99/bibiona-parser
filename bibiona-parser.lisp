@@ -1,7 +1,7 @@
 (in-package :bibiona-parser)
 
 #| ПРОБЕЛЬНЫЕ СИМВОЛЫ, В ТОМ ЧИСЛЕ ПЕРЕВОДЫ КАРЕТКИ |#
-(defrule прб-сим (+ (or #\space #\tab #\newline))
+(defrule прб-сим (+ (or #\space #\tab #\newline #\return))
   (:constant " "))
 
 
@@ -221,10 +221,10 @@
                       (~ "концу")))
 
 (defrule изделие (and (? прб) 
-                      (~ "изделие") (+ прб) 
+                      изделие-кс (+ прб) 
                       ; (? (and название (+ прб)))
                       операторы (+ прб) 
-                      (~ "конец") (+ прб) (~ "изделия") 
+                      конец-кс (+ прб) изделие-кс 
                       (? последняя-тз) (? прб))
   (:destructure (w1 i1 w2 op w3 e w4 i2 sem w5)
                 (declare (ignore w1 w2 w3 w4 w5 i1 i2 e sem))

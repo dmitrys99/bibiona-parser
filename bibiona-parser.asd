@@ -1,4 +1,3 @@
-
 (defsystem bibiona-parser
     :description
   "Система определяет транслятор для проекта \"Бибиона\".
@@ -6,7 +5,10 @@
 пригодную для выполнения виртуальной машиной, отображающей конструкцию
 на экране, принтере и web-странице."
   :maintainer "Дмитрий Соломенников <dmitrys99@mail.ru>"
-  :depends-on (#:esrap #:parse-number #:cli-parser :babel)
+  :depends-on (#:esrap 
+               #:parse-number 
+               #:cli-parser
+               #:alexandria)
   :version #.(with-open-file
                  (f (merge-pathnames
                      "version.lisp-expr"

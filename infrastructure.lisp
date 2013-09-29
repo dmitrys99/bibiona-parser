@@ -5,7 +5,13 @@
     (setf parsed (esrap:parse 'изделие s))
     (generate-all parsed)))
 
-(defun parse-file (filename))
+(defun parse-file (filename)
+  (if (not (probe-file filename))
+      ;;(error-bibiona :CMD-004)
+      (output "CMD-004")
+      )
+  (let ((content (alexandria:read-file-into-string filename)))
+    (parse-text content)))
 
 (defparameter *parser-name* "bibiona-parser")
 (defparameter *parser-exe* "bibiona-parser.exe")
@@ -84,7 +90,7 @@
                     
                     (cond
                       ((not (null explain)) (explain-error explain))
-                      ((not (null fabric)) "Компиляция")
+                      ((not (null fabric)) (princ (format nil "~A" (parse-file (first fabric)))))
                       (t (output "ku")))
 
                     )))))))
