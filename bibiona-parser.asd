@@ -8,7 +8,8 @@
   :depends-on (#:esrap 
                #:parse-number 
                #:cli-parser
-               #:alexandria)
+               #:alexandria
+               #:uiop)
   :version #.(with-open-file
                  (f (merge-pathnames
                      "version.lisp-expr"

@@ -15,5 +15,6 @@
   #-BIBIONA-DEBUG (sb-ext:string-to-octets x :external-format :cp866)
   #+BIBIONA-DEBUG x)
 
+(defun не-указано? (x) 
+  (if x x "не указано"))
 
-(defun не-указано? (x) (if x x "не указано"))
