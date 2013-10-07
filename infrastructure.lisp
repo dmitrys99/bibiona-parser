@@ -48,8 +48,11 @@
    (make-instance 
     'cli-parser:cli-option :abbr "e" :full "explain" :requires-arguments t
                            :description "Описание ошибки по ее коду"
-                           :example "-t CMD-001, --explain=CMD-001")))
-
+                           :example "-t CMD-001, --explain=CMD-001")
+   (make-instance
+    'cli-parser:cli-option :abbr "n" :full "no-compress" :requires-arguments nil
+                           :description "Не производить финальную сборку *.fab-файла после трансляции"
+                           :example "--no-compress")))
 
 (defun main () 
   (main-routine))

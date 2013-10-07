@@ -9,7 +9,8 @@
                #:parse-number 
                #:cli-parser
                #:alexandria
-               #:uiop)
+               #:uiop
+               #:zip)
   :version #.(with-open-file
                  (f (merge-pathnames
                      "version.lisp-expr"
@@ -26,6 +27,7 @@
                (:file "bibiona-parser")
                (:file "bibiona-generator")
                (:file "utils")
+               (:file "file-utils")
                (:file "errors")
                (:file "infrastructure")))
 
