@@ -44,7 +44,7 @@
   (let ((fabname (change-ext fabric :fab))
         (write-date (get-universal-time)))
     (uiop:with-temporary-file (:pathname tmp :keep t)
-      (zip:with-output-to-zipfile (fab tmp :if-exists :supersede :external-format :ibm866)
+      (zip:with-output-to-zipfile (fab tmp :if-exists :supersede)
         (labels ((write-file (zip fname ftype i)
                    (when fname
                      (with-open-file (s fname :element-type '(unsigned-byte 8))

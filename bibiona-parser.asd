@@ -24,6 +24,7 @@
                                   :bibiona-parser))
   :serial t
   :components ((:file "package")
+               (:file "fixups")
                (:file "bibiona-parser")
                (:file "bibiona-generator")
                (:file "utils")
