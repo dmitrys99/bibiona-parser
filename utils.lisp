@@ -12,7 +12,7 @@
   (write-sequence (tr x) *standard-output*))
 
 (defun tr (x)
-  #-BIBIONA-DEBUG (sb-ext:string-to-octets x :external-format :cp866)
+  #-BIBIONA-DEBUG (if x (sb-ext:string-to-octets x :external-format :cp866))
   #+BIBIONA-DEBUG x)
 
 (defun не-указано? (x) 

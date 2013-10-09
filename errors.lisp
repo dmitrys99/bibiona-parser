@@ -60,6 +60,7 @@
                         (get-error-text номер-ошибки) 
                         "~%") 
            args))
+  #-BIBIONA-DEBUG
   (sb-ext:exit :code 1 :abort nil))
 
 
