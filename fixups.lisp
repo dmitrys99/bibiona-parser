@@ -9,3 +9,5 @@
 (defun zip::default-external-format ()
   zip::*default-external-format*)
 
+(defun call-fixups ()
+  (setf zip::*default-external-format* :ibm866))

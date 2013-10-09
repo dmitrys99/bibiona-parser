@@ -55,6 +55,7 @@
                            :example "--no-compress")))
 
 (defun main () 
+  (init)
   (main-routine))
 
 (defun main-routine (&optional (cmd nil cmd-supplied))
@@ -98,3 +99,7 @@
 
                     )))))))
   nil)
+
+;; Настраиваем фиксапы и прочие инициализационные вещи.
+(defun init ()
+  (call-fixups))
