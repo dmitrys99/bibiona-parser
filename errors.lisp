@@ -64,7 +64,7 @@
   (sb-ext:exit :code 1 :abort nil))
 
 
-(defun explain-error (explain)
+(defun объясняю-ошибку (explain)
   (when (not (eql explain '()))
     (let* ((e (apply #'concatenate (cons 'string explain)))
            (ie (intern e :keyword)))

@@ -16,7 +16,28 @@
           ))
 
 (defun generate-all (lst)
+  (eval lst)
+
   (format nil "begin
 ~A
 end." 
   (generate-fabric lst)))
+
+(defparameter *output-stream* nil)
+
+(defun :ТОЧКА (&rest rest)
+  (declare (ignore rest))
+  (format *output-stream* "ТОЧКА;"))
+
+(defun :ОТРЕЗОК (&rest rest)
+  (declare (ignore rest))
+  (format *output-stream* "ОТРЕЗОК;"))
+
+(defun :КРИВАЯ (&rest rest)
+  (declare (ignore rest))
+  (format *output-stream* "КРИВАЯ;"))
+
+(defun :ИЗДЕЛИЕ (&rest rest)
+  (let* ((op (getf rest :ОПЕРАТОРЫ))
+         (res (mapcar 'eval op)))
+    (format *output-stream* "begin ~{~A~} end." res)))

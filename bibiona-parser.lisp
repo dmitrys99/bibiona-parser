@@ -228,4 +228,4 @@
                       (? последняя-тз) (? прб))
   (:destructure (w1 i1 w2 op w3 e w4 i2 sem w5)
                 (declare (ignore w1 w2 w3 w4 w5 i1 i2 e sem))
-                (list :ИЗДЕЛИЕ op)))
+                (list :ИЗДЕЛИЕ :ОПЕРАТОРЫ (cons 'list op))))
