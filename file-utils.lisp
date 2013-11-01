@@ -3,6 +3,15 @@
 (defparameter *file-extensions*
   '(:backup :fabric :fabricx :fab :jpg :png :txt :desc :code))
 
+(defun get-current-dir ()
+  (let* ((src (sb-posix:getcwd))
+         (len (length src))
+         (lastletter (aref src (1- len))))
+    (if (member lastletter '(#\/ #\\))
+        (parse-namestring src)
+        )
+    ))
+
 (defun change-ext (filename dst)
   "Функция меняет расширение файла на содержимое dst.
 Проверяется факт вхождения dst в список *file-extensions*.
@@ -12,24 +21,22 @@
 Параметр backup формирует резервное имя файла (.~ext)
 Если в качестве 
 "
-  (let ((fl (if (or (null filename) 
-                    (not (member dst *file-extensions*))) 
+  (let ((fl (if (or 
+                 (null filename) 
+                 (not (member dst *file-extensions*))) 
                 nil
-               
-               
-                ;; (multiple-value-list 
-                ;;   (uiop:split-unix-namestring-directory-components filename))
-                (parse-namestring filename))))
+                (merge-pathnames (parse-namestring filename)))))
     (when fl
-      (let ((ext (if (equal dst :backup) 
-                     (concatenate 'string "~" (pathname-type fl))
-                     (string-downcase (string dst)))))
-        (make-pathname :host (pathname-host fl) 
-                       :directory (pathname-directory fl) 
-                       :name (pathname-name fl)
-                       :type ext)))))
+      (let* ((ext (if (equal dst :backup) 
+                      (concatenate 'string "~" (pathname-type fl))
+                      (string-downcase (string dst)))))
+        (make-pathname :host      (pathname-host fl) 
+                       :device    (pathname-device fl)
+                       :directory (pathname-directory fl)
+                       :name      (pathname-name fl)
+                       :type      ext)))))
 
-(defun assemble-fabric (&key fabric fabricx desc photos tech-draw)
+(defun собираю-изделие (&key fabric fabricx desc photos tech-draw)
   "Функция собирает *.fabric-файл из нескольких параметров
  :fabric \"file.fabric\" 
  :fabricx \"file.fabricx\" 
@@ -38,7 +45,6 @@
  :tech-draw (\"draw.jpg\")
 
 Функция проверяет существование и доступность всех файлов."
-
   ;; Отсутствие параметра fabric - программная ошибка.
   (assert (not (null fabric)))
   
@@ -56,7 +62,6 @@
                    (when fname
                      (with-open-file (s fname :element-type '(unsigned-byte 8))
                        (zip:write-zipentry zip 
-                                           
                                            (concatenate 'string 
                                                         ftype
                                                         (if i (princ-to-string i) ""))
@@ -76,14 +81,12 @@
       (rename-with-backup tmp fabname))
     fabname))
 
-
 (defun check-file-sanity (fname)
   (if fname 
       (if (probe-file fname) 
           t
           (error-bibiona :CMD-004 fname))
       t))
-
 
 (defun rename-with-backup (from to &key (backup t))
   ;; Все работы начинаем только в том случае, если файл, 

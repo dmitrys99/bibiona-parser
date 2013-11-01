@@ -2,24 +2,44 @@
 
 (defun parse-text (s)
   (let ((parsed))
-    (setf parsed (esrap:parse 'изделие s))
-    (break "parsed: ~A" parsed)
-    (generate-all parsed)))
+    (setf parsed (esrap:parse 'старт s))
+    ;; При успехе надо вернуть 3 параметра: nil ошибка параметры. 
+    ;; Пока в тепличных условиях всегда возвращается t
+    (generate parsed)))
 
 (defun parse-file (filename)
   (if (not (probe-file filename))
       (error-bibiona :CMD-004 filename))
-  (let ((content (alexandria:read-file-into-string filename)))
+  (let ((content (alexandria:read-file-into-string filename :external-format :utf-8)))
     (parse-text content)))
+
+(defun транслирую (исходный-файл)
+  (uiop:with-temporary-file (:pathname чертеж :keep t :prefix "bp-fbx-")
+    (with-output-to-fabricx чертеж
+      (if (not (probe-file исходный-файл))
+          (error-bibiona :CMD-004 исходный-файл))
+      (let ((содержимое (alexandria:read-file-into-string исходный-файл :external-format :utf-8)))
+        (multiple-value-bind (получилось ошибка параметры-ошибки) 
+            (parse-text содержимое)
+          (if получилось
+              чертеж
+              (values nil ошибка параметры-ошибки)))))))
+
+(defun собираю (исходный-файл фото описание техрисунки &optional (удалить-чертеж t))
+  (multiple-value-bind (чертеж ошибка параметры-ошибки) 
+      (транслирую исходный-файл)
+    (if чертеж
+        (progn 
+          (собираю-изделие :fabric исходный-файл 
+                           :fabricx чертеж 
+                           :desc описание 
+                           :photos фото 
+                           :tech-draw техрисунки)
+          (if удалить-чертеж (delete-file чертеж)))
+        (error-bibiona ошибка параметры-ошибки))))
 
 (defparameter *parser-name* "bibiona-parser")
 (defparameter *parser-exe* "bibiona-parser.exe")
-
-
-;;(defun tr (x) 
-;;  (ccl:decode-string-from-octets 
-;;   (ccl:encode-string-to-octets x :external-format :CYRILLIC)
-;;   :external-format :cyrillic))
 
 (defparameter *cli-opts*
   (list
@@ -53,10 +73,6 @@
                            :description "Не производить финальную сборку *.fab-файла после трансляции"
                            :example "--no-compress")))
 
-(defun main () 
-  (init)
-  (main-routine))
-
 (defun main-routine (&optional (cmd nil cmd-supplied))
   (let* ((cmdline (if cmd-supplied cmd (cmd-line)))
          (parsed-cmdline (cli-parser:cli-parse-assoc cmdline *cli-opts*)))
@@ -71,11 +87,11 @@
                                             (first j)))))
                    (val    (s) (cadr (gv s)))
                    (vallst (s) (cdr (gv s))))
-            (let* ((fabric    (val "fabric"))
+            (let* ((fabric    (val    "fabric"))
                    (photos    (vallst "photos"))
-                   (desc      (val "desc"))
+                   (desc      (val    "desc"))
                    (tech-draw (vallst "tech-draw"))
-                   (explain   (val "explain")))
+                   (explain   (val    "explain")))
               (if (not (or fabric explain))
                   ;; Не указан входной файл -f
                   (error-bibiona :CMD-003) 
@@ -93,7 +109,10 @@
                     
                     (cond
                       ((not (null explain)) (объясняю-ошибку explain))
-                      ((not (null fabric)) (princ (format nil "~A" (parse-file (first fabric)))))
+                      ((not (null fabric)) (собираю (first fabric) photos desc tech-draw)
+;;                       (princ (format nil "~A" (parse-file (first
+;;                       fabric))))
+                       )
                       (t (output "ku")))
 
                     )))))))
@@ -102,3 +121,7 @@
 ;; Настраиваем фиксапы и прочие инициализационные вещи.
 (defun init ()
   (call-fixups))
+
+(defun main () 
+  (init)
+  (main-routine))

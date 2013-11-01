@@ -1,43 +1,35 @@
 (in-package :bibiona-parser)
 
-(defun generate-dot (op) "ТОЧКА;
-")
-(defun generate-line (op) "ОТРЕЗОК;
-")
-(defun generate-fabric (ops)
-  (format nil 
-          "~{~A~}" 
-          (mapcar #'(lambda (x) 
-                      (let ((type (first x)))
-                        ;; (break "type: ~A" (eql type :ТОЧКА))
-                        (cond ((eql type :ТОЧКА) (generate-dot x))
-                              ((eql type :ОТРЕЗОК) (generate-line x))
-                              (t "none")))) (second ops))
-          ))
-
-(defun generate-all (lst)
-  (eval lst)
-
-  (format nil "begin
-~A
-end." 
-  (generate-fabric lst)))
+(defun generate (lst)
+  (eval lst))
 
 (defparameter *output-stream* nil)
 
 (defun :ТОЧКА (&rest rest)
   (declare (ignore rest))
-  (format *output-stream* "ТОЧКА;"))
+  (format nil "ТОЧКА;"))
 
 (defun :ОТРЕЗОК (&rest rest)
   (declare (ignore rest))
-  (format *output-stream* "ОТРЕЗОК;"))
+  (format nil "ОТРЕЗОК;"))
 
 (defun :КРИВАЯ (&rest rest)
   (declare (ignore rest))
-  (format *output-stream* "КРИВАЯ;"))
+  (format nil "КРИВАЯ;"))
 
 (defun :ИЗДЕЛИЕ (&rest rest)
   (let* ((op (getf rest :ОПЕРАТОРЫ))
          (res (mapcar 'eval op)))
-    (format *output-stream* "begin ~{~A~} end." res)))
+    (format nil "begin ~{~A~} end." res)))
+
+(defun :СТАРТ (value)
+  (format *output-stream* value) t)
+
+(defmacro with-output-to-fabricx (filename &body body)
+  `(with-open-file (s ,filename 
+                      :if-exists :supersede 
+                      :if-does-not-exist :create 
+                      :external-format :UTF-8
+                      :direction :output) 
+     (let ((*output-stream* s))
+       ,@body)))
