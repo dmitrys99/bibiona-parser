@@ -30,7 +30,8 @@
                (:file "utils")
                (:file "file-utils")
                (:file "errors")
-               (:file "infrastructure")))
+               (:file "infrastructure")
+               (:file "main")))
 
 (defsystem bibiona-parser-tests
     :depends-on (#:bibiona-parser

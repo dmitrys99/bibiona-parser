@@ -27,9 +27,17 @@
       )
     :PRS
     #(;; PRS-001
-      "Разбор файла закончился неудачей."
-      "Случилась ошибка в программном коде транслятора. Обычно вы не должны видеть это сообщение; это фатальная ошибка."
-      "Обратитесь к разработчику с приложением кода изделия, которое вы пытались произвести."
+      ("Разбор файла закончился неудачей."
+       "Случилась ошибка в программном коде транслятора. Обычно вы не должны видеть это сообщение; это фатальная ошибка."
+       "Обратитесь к разработчику с приложением кода изделия, которое вы пытались произвести.")
+      ;; PRS-002
+      ("~A:~A:~A Ожидается '~A', обнаружено '~A'."
+       ""
+       "")
+      ;; PRS-003
+      ("Файл ~A не в кодировке UTF-8."
+       "Невозможно прочитать данные из файла, так как он сохранен в кодировке, отличной от UTF-8."
+       "Пожалуйста, сохраните файл в кодировке UTF-8 (для ознакомления с соответствующими настройками некоторых редакторов обратитесь на web-сайт программы).")
       )
     ))
 
@@ -56,16 +64,16 @@
       )))
 
 (defun error-bibiona (номер-ошибки &rest args)
-  #+bibiona-debug
-  (output 
-   (format nil 
-           (concatenate 'string 
-                        "~%"
-                        (string номер-ошибки) 
-                        ": "
-                        (get-error-text номер-ошибки) 
-                        "~%") 
-           args))
+  ;;  #+bibiona-debug                       
+  (output
+   (eval `(format nil 
+                  (concatenate 'string 
+                               "~%"
+                               (string ,номер-ошибки) 
+                               ": "
+                               (get-error-text ,номер-ошибки) 
+                               "~%") 
+                  ,@args)))
   #-BIBIONA-DEBUG
   (sb-ext:exit :code 1 :abort nil))
 
@@ -85,3 +93,36 @@
                 (error-bibiona :CMD-002 e)))
           (error-bibiona :CMD-002 ie)))
     nil))
+
+(defun describe-parse-error (c)
+  (alexandria:if-let ((text (esrap-error-text c))
+                      (position (esrap-error-position c))
+                      (expressions (esrap-error-expressions c)))
+    (let* ((line (count #\Newline text :end position))
+           (column (- position (or (position #\Newline text
+                                             :end position
+                                             :from-end t)
+                                   0)
+                      1))
+           ;; FIXME: magic numbers
+           (start (or (position #\Newline text
+                                :start (max 0 (- position 32))
+                                :end (max 0 (- position 24))
+                                :from-end t)
+                      (max 0 (- position 24))))
+           (end (min (length text) (+ position 24)))
+           (expected (esrap:rule-expected 
+                      (esrap:find-rule 
+                       (first (find-if #'(lambda (x) (if (symbolp (first x)) t nil)) 
+                                       expressions
+                                       :from-end t))))))
+      (values
+       (if (alexandria:emptyp text) "" (subseq text start end))       
+       (1+ line) 
+       (1+ column)
+       expected))
+    (values
+     ""
+     nil 
+     nil
+     nil)))

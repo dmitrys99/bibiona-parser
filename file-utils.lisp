@@ -3,15 +3,6 @@
 (defparameter *file-extensions*
   '(:backup :fabric :fabricx :fab :jpg :png :txt :desc :code))
 
-(defun get-current-dir ()
-  (let* ((src (sb-posix:getcwd))
-         (len (length src))
-         (lastletter (aref src (1- len))))
-    (if (member lastletter '(#\/ #\\))
-        (parse-namestring src)
-        )
-    ))
-
 (defun change-ext (filename dst)
   "Функция меняет расширение файла на содержимое dst.
 Проверяется факт вхождения dst в список *file-extensions*.
@@ -104,18 +95,5 @@
             (rename-file to to-backup))))
     (if (probe-file to)
         (delete-file to))
-    (rename-file from to)
-    ))
+    (rename-file from to)))
 
-
-#|
-
-(bibiona-parser::assemble-fabric
-          :fabric "c:\\Work\\Emacs\\home\\tfabric\\юбка.fabric"
-          :fabricx "c:\\Work\\Emacs\\home\\tfabric\\юбка.fabricx"
-          :desc "c:\\Work\\Emacs\\home\\tfabric\\юбка.desc"
-          :photos '("c:\\Work\\Emacs\\home\\tfabric\\юбка1.jpg" "c:\\Work\\Emacs\\home\\tfabric\\юбка2.jpg")
-          :tech-draw '("c:\\Work\\Emacs\\home\\tfabric\\юбка1.td.jpg"
-          "c:\\Work\\Emacs\\home\\tfabric\\юбка2.td.jpg"))
-
-|#
