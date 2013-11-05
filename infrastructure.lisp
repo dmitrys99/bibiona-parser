@@ -17,8 +17,7 @@
                 column col
                 parsed nil
                 text tx
-                expected (if (listp ex) (format nil "~{~A~^, ~}" ex) ex)))
-        ))
+                expected (if (listp ex) (format nil "~{~A~^, ~}" ex) ex)))))
     
 
     ;; При успехе надо вернуть 3 параметра: nil ошибка параметры. 
@@ -42,6 +41,7 @@
       (let* ((res)
              (получилось)
              (содержимое 
+               ;; Загружаем содержимое файла и проверяем на кодировку UTF-8.
                (handler-case 
                    (alexandria:read-file-into-string исходный-файл :external-format :utf-8)
                  (SB-INT:STREAM-DECODING-ERROR (c)
@@ -59,14 +59,13 @@
         (apply #'values res)))))
 
 (defun собираю (исходный-файл фото описание техрисунки &optional (удалить-чертеж t))
-  ;; (output исходный-файл)
   (when (check-file-sanity исходный-файл)
     (let ((res)
           (чертеж))
       
       (setf res (multiple-value-list 
-                 (транслирую исходный-файл)))
-      (setf чертеж (first res))
+                 (транслирую исходный-файл))
+            чертеж (first res))
       (if чертеж
           (progn 
             (собираю-изделие :fabric исходный-файл 

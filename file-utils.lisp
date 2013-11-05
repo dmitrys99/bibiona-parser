@@ -63,8 +63,9 @@
                      for p in lst
                      for i from 0
                      do (write-file zip p ftype (when (> i 0) i)))))
-
-          (write-file-list fab (list fabric)  "Изделие")
+          
+          (if (not *hide-source*)
+              (write-file-list fab (list fabric) "Изделие"))
           (write-file-list fab (list fabricx) "Чертеж")
           (write-file-list fab (list desc)    "Описание")
           (write-file-list fab photos         "Фото")

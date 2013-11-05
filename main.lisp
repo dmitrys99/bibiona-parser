@@ -3,6 +3,9 @@
 (defparameter *parser-name* "bibiona-parser")
 (defparameter *parser-exe* "bibiona-parser.exe")
 
+(defparameter *hide-source* nil)
+(defparameter *not-compress* nil)
+
 (defparameter *cli-opts*
   (list
 
@@ -31,13 +34,18 @@
                            :description "Описание ошибки по ее коду"
                            :example "-t CMD-001, --explain=CMD-001")
    (make-instance
-    'cli-parser:cli-option :abbr "n" :full "no-compress" :requires-arguments nil
+    'cli-parser:cli-option :abbr "s" :full "hide-source" :requires-arguments t
+                           :description "Не включать исходный код в *.fab-файл"
+                           :example "--hide-source")
+   (make-instance
+    'cli-parser:cli-option :abbr "n" :full "not-compress" :requires-arguments nil
                            :description "Не производить финальную сборку *.fab-файла после трансляции"
-                           :example "--no-compress")))
+                           :example "--not-compress")))
 
 (defun main-routine (&optional (cmd nil cmd-supplied))
   (let* ((cmdline (if cmd-supplied cmd (cmd-line)))
          (parsed-cmdline (cli-parser:cli-parse-assoc cmdline *cli-opts*)))
+
     (if (equal parsed-cmdline '((nil nil)))
         (output (cli-parser:cli-usage *parser-name* *cli-opts*))
         (progn 
@@ -47,13 +55,16 @@
                            :test #'(lambda (i j) 
                                      (equal (first i) 
                                             (first j)))))
+                   (boolop (s) (not (null (gv s))))
                    (val    (s) (cadr (gv s)))
                    (vallst (s) (cdr  (gv s))))
             (let* ((fabric    (val    "fabric"))
                    (photos    (vallst "photos"))
                    (desc      (val    "desc"))
                    (tech-draw (vallst "tech-draw"))
-                   (explain   (val    "explain")))
+                   (explain   (val    "explain"))
+                   (hide-src  (boolop "hide-source"))
+                   (no-zip    (boolop "not-compress")))
               (if (not (or fabric explain))
                   ;; Не указан входной файл -f
                   (error-bibiona :CMD-003) 
@@ -67,7 +78,9 @@
                     ;;          (не-указано? tech-draw)
                     ;;          (не-указано? desc)
                     ;;          (не-указано? explain)))
-                    
+                    (setf *hide-source* hide-src)
+                    (setf *not-compress* no-zip)
+
                     (cond
                       ((not (null explain)) (объясняю-ошибку explain))
                       ((not (null fabric)) (собираю (first fabric) photos desc tech-draw))
