@@ -39,6 +39,12 @@
        "Невозможно прочитать данные из файла, так как он сохранен в кодировке, отличной от UTF-8."
        "Пожалуйста, сохраните файл в кодировке UTF-8 (для ознакомления с соответствующими настройками некоторых редакторов обратитесь на web-сайт программы).")
       )
+    :SEM
+    #(;; SEM-001
+      ("~A:~A:~A Точка '~A' уже определена (~A:~A)"
+       "Имя точки, которое вы хотите использовать, ранее уже было определено с помощью оператора ТОЧКА."
+       "Вам следует использовать другое название для новой точки.")
+      )
     ))
 
 (defun get-error-text (номер-ошибки)
@@ -94,16 +100,24 @@
           (error-bibiona :CMD-002 ie)))
     nil))
 
+(defun get-lc-from-pos (text position)
+  (list 
+   ; line
+   (1+ (count #\Newline text :end position))
+   ; col
+   (- position (or (position #\Newline text
+                             :end position
+                             :from-end t)
+                   0)
+      0)))
+
 (defun describe-parse-error (c)
   (alexandria:if-let ((text (esrap-error-text c))
                       (position (esrap-error-position c))
                       (expressions (esrap-error-expressions c)))
-    (let* ((line (count #\Newline text :end position))
-           (column (- position (or (position #\Newline text
-                                             :end position
-                                             :from-end t)
-                                   0)
-                      1))
+    (let* ((lc (get-lc-from-pos text position))
+           (line (first lc))
+           (column (second lc))
            ;; FIXME: magic numbers
            (start (or (position #\Newline text
                                 :start (max 0 (- position 32))

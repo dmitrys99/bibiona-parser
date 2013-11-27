@@ -1,5 +1,8 @@
 (in-package :bibiona-parser)
 
+(defparameter *parsed-text* nil)
+(defparameter *parsed-file* nil)
+
 (defun parse-text (исходный-файл содержимое)
   (let ((parsed)
         (line)
@@ -7,8 +10,11 @@
         (text)
         (expected))
 
-    (handler-case 
-        (setf parsed (esrap:parse 'старт содержимое))
+    (handler-case
+      (let ((*parsed-text* содержимое)
+            (*parsed-file* исходный-файл))
+        (setf parsed (esrap:parse 'старт содержимое)))
+      
       (esrap:esrap-error (c)
         (multiple-value-bind (tx ln col ex)
             (describe-parse-error c)
@@ -27,36 +33,42 @@
         (values nil :PRS-002 (merge-pathnames исходный-файл) line column expected text))))
 
 (defun транслирую (исходный-файл)
-  (uiop:with-temporary-file (:pathname чертеж :keep t :prefix "bp-fbx-")
-    (with-output-to-fabricx чертеж
+  (let ((*parsed-text* nil)
+        (*parsed-file* исходный-файл)
+        (*points* (make-hash-table :test 'equalp)))
+    
+    (uiop:with-temporary-file (:pathname чертеж :keep t :prefix "bp-fbx-")
+      (with-output-to-fabricx чертеж
 
-      ;; Вообще-то этот код не должен выполняться, т.к. функция
-      ;; "транслирую" не должна вызываться самостоятельно и
-      ;; существование файла должно проверяться вышележащим кодом. Тем
-      ;; не менее, если все-же функция была вызвана самостоятельно, то
-      ;; отсутствие входного файла - фатальная ошибка.
-      (if (not (probe-file исходный-файл))
-          (error-bibiona :CMD-004 исходный-файл))
+        ;; Вообще-то этот код не должен выполняться, т.к. функция
+        ;; "транслирую" не должна вызываться самостоятельно и
+        ;; существование файла должно проверяться вышележащим кодом. Тем
+        ;; не менее, если все-же функция была вызвана самостоятельно, то
+        ;; отсутствие входного файла - фатальная ошибка.
+        (if (not (probe-file исходный-файл))
+            (error-bibiona :CMD-004 исходный-файл))
 
-      (let* ((res)
-             (получилось)
-             (содержимое 
-               ;; Загружаем содержимое файла и проверяем на кодировку UTF-8.
-               (handler-case 
-                   (alexandria:read-file-into-string исходный-файл :external-format :utf-8)
-                 (SB-INT:STREAM-DECODING-ERROR (c)
-                   (declare (ignore c))
-                   (setf res (list nil :PRS-003 исходный-файл))
-                   :НЕ-УТФ))))
+        (let* ((res)
+               (получилось)
+               (содержимое 
+                 ;; Загружаем содержимое файла и проверяем на кодировку UTF-8.
+                 (handler-case 
+                     (alexandria:read-file-into-string исходный-файл :external-format :utf-8)
+                   (SB-INT:STREAM-DECODING-ERROR (c)
+                     (declare (ignore c))
+                     (setf res (list nil :PRS-003 исходный-файл))
+                     :НЕ-УТФ))))
 
-        (if (not (eql содержимое :НЕ-УТФ))
-            (progn
-              (setf res (multiple-value-list (parse-text исходный-файл содержимое))
-                    получилось (first res))
-              (if получилось
-                  (setf res (list чертеж)))))
+          (if (not (eql содержимое :НЕ-УТФ))
+              (progn
+                (setf 
+                 *parsed-text* содержимое
+                 res (multiple-value-list (parse-text исходный-файл содержимое))
+                 получилось (first res))
+                (if получилось
+                    (setf res (list чертеж)))))
 
-        (apply #'values res)))))
+          (apply #'values res))))))
 
 (defun собираю (исходный-файл фото описание техрисунки &optional (удалить-чертеж t))
   (when (check-file-sanity исходный-файл)

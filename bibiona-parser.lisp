@@ -44,7 +44,8 @@
 (defrule имя-точки (and #\.
                         (+ (or цифры-точки буквы-точки))
                         (* амп-точки))
-  (:destructure (dot txt amp) (concatenate 'string dot (text txt) (text amp))))
+  (:destructure (dot txt amp) 
+    (concatenate 'string dot (text txt) (text amp))))
 
 (defrule от (~ "от") (:constant :ОТ))
 (defrule до (~ "до") (:constant :ДО))
@@ -131,10 +132,10 @@
 (defrule точка-кс (or (~ "точка") (~ "точки")) (:constant :ТОЧКА))
 
 #| ОП: БАЗОВАЯ ТОЧКА |#
- (defrule базовая-точка (and точка-кс (+ прб) имя-точки (+ прб) (~ "Базовая"))
-  (:destructure (p w1 dn w2 b) 
-                (declare (ignore b p w1 w2)) 
-                (list :ТОЧКА dn :БАЗОВАЯ)))
+(defrule базовая-точка (and точка-кс (+ прб) имя-точки (+ прб) (~ "Базовая"))
+  (:destructure (p w1 dn w2 b &bounds start) 
+    (declare (ignore w1 w2 p b))
+    (list :ТОЧКА dn start :БАЗОВАЯ)))
 
 
 #| ОП: НАПРАВЛЕННАЯ ТОЧКА |#
@@ -216,7 +217,8 @@
 (defrule изделие-кс (or  (~ "изделие")
                          (~ "изделия")
                          (~ "изделию"))
-  (:expected "ИЗДЕЛИЕ"))
+  (:expected "ИЗДЕЛИЕ")
+  )
 
 #| КС: КОНЕЦ |#
 (defrule конец-кс (or (~ "конец")

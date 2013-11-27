@@ -5,9 +5,25 @@
 
 (defparameter *output-stream* nil)
 
+(defun :ИМЯ-ТОЧКИ (имя позиция)
+  (put-point имя позиция))
+
 (defun :ТОЧКА (&rest rest)
-  (declare (ignore rest))
-  (format nil "ТОЧКА;"))
+  (let* ((point (put-point (first rest) (second rest)))
+         (where (second rest))
+         (is-defined (equal (third point) :ОПРЕДЕЛЕНА))
+         (declared (fourth point)))
+    (if is-defined
+        (let ((lc1 (get-lc-from-pos *parsed-text* where))
+              (lc2 (get-lc-from-pos *parsed-text* declared)))
+          (error-bibiona :SEM-001 
+                         *parsed-file* 
+                         (first lc1)
+                         (second lc1)
+                         (first point)
+                         (first lc2)
+                         (second lc2))) 
+        (format nil "ТОЧКА ~A;" (first point)))))
 
 (defun :ОТРЕЗОК (&rest rest)
   (declare (ignore rest))

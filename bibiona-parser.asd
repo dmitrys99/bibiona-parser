@@ -26,6 +26,7 @@
   :components ((:file "package")
                (:file "fixups")
                (:file "bibiona-parser")
+               (:file "generator-storage")
                (:file "bibiona-generator")
                (:file "utils")
                (:file "file-utils")
